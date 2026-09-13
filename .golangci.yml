@@ -1,0 +1,115 @@
+version: "2"
+
+output:
+  formats:
+    tab:
+      path: stdout
+      colors: true
+
+run:
+  go: "1.25"
+  timeout: 10m
+  build-tags:
+    - mock
+    - integration
+
+linters:
+  default: none
+  enable:
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - nolintlint
+    - revive
+    - gocritic
+    - bodyclose
+    - dupl
+    - errname
+    - goconst
+    - gocyclo
+    - gosec
+    - nakedret
+    - nestif
+    - prealloc
+    - unconvert
+    - unparam
+    - usestdlibvars
+    - errorlint
+    - misspell
+  settings:
+    govet:
+      enable:
+        - nilness
+        - reflectvaluecompare
+        - sortslice
+        - unusedwrite
+    gocritic:
+      enable-all: true
+      disabled-checks:
+        - appendCombine
+        - badRegexp
+        - deprecatedComment
+        - docStub
+        - importShadow
+        - sloppyLen
+        - typeAssertChain
+        - emptyFallthrough
+        - unnamedResult
+        - singleCaseSwitch
+        - sloppyReassign
+        - truncateCmp
+        - unnecessaryBlock
+        - whyNoLint
+        - commentFormatting
+      settings:
+        hugeParam:
+          sizeThreshold: 256
+        rangeValCopy:
+          sizeThreshold: 1024
+    revive:
+      rules:
+        - name: unexported-return
+          disabled: true
+        - name: unused-parameter
+          disabled: true
+        - name: empty-block
+          severity: warning
+          disabled: true
+    misspell: {}
+    errcheck:
+      exclude-functions:
+        - (io.Closer).Close
+  exclusions:
+    generated: lax
+    paths:
+      - "init.go"
+      - ".*_test.go"
+      - ".*_mock.go"
+      - "vendor"
+    rules:
+      - text: 'hugeParam: (.*?) is heavy \(\d+ bytes\); consider passing it by pointer'
+        path: '(.*)(build|cmd|command|cfg|conf|config)(.*)\\.go'
+      - linters: [ gosec ]
+        text: 'G104: Errors unhandled'
+        path: '_test\\.go'
+
+formatters:
+  enable:
+    - gofumpt
+    - gofmt
+    - gci
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/MoM-Repo/mom-boilerplate)
+        - blank
+        - dot
+      custom-order: true
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
