@@ -105,7 +105,7 @@ formatters:
       sections:
         - standard
         - default
-        - prefix(github.com/MoM-Repo/mom-boilerplate)
+        - prefix(github.com/AlexanderTal/catalog-service)
         - blank
         - dot
       custom-order: true

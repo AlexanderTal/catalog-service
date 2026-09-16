@@ -1,10 +1,22 @@
 package main
 
 import (
-	"fmt"
+	"log"
+
+	"github.com/AlexanderTal/catalog-service/internal/app/config"
 )
 
 func main() {
-	s := "gopher"
-	fmt.Printf("Hello and welcome, %s!\n", s)
+	config.Load()
+
+	cfg := config.Root
+
+	log.Printf("Server will start on port: %d", cfg.Processor.WebServer.ListenPort)
+	log.Printf("Database: %s@%s/%s",
+		cfg.Repository.Postgres.Username,
+		cfg.Repository.Postgres.Address,
+		cfg.Repository.Postgres.Name)
+	log.Printf("Environment: %s, LogLevel: %s",
+		cfg.Monitor.Environment,
+		cfg.Monitor.LogLevel)
 }
