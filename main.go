@@ -4,6 +4,8 @@ import (
 	"log"
 
 	"github.com/AlexanderTal/catalog-service/internal/app/config"
+	rhealth "github.com/AlexanderTal/catalog-service/internal/app/handler/http/health"
+	rprocessor "github.com/AlexanderTal/catalog-service/internal/app/processor/http"
 )
 
 func main() {
@@ -11,12 +13,10 @@ func main() {
 
 	cfg := config.Root
 
-	log.Printf("Server will start on port: %d", cfg.Processor.WebServer.ListenPort)
-	log.Printf("Database: %s@%s/%s",
-		cfg.Repository.Postgres.Username,
-		cfg.Repository.Postgres.Address,
-		cfg.Repository.Postgres.Name)
-	log.Printf("Environment: %s, LogLevel: %s",
-		cfg.Monitor.Environment,
-		cfg.Monitor.LogLevel)
+	hHealth := rhealth.NewHandler()
+
+	httpServer := rprocessor.NewHTTP(hHealth, cfg.Processor.WebServer)
+	if err := httpServer.Serve(); err != nil {
+		log.Fatalf("HTTP server failed: %v", err)
+	}
 }
