@@ -36,7 +36,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.25"
+          go-version: "1.27"
           cache-dependency-path: go.sum
 
       - name: Run tests
@@ -51,7 +51,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.25"
+          go-version: "1.27"
           cache-dependency-path: go.sum
 
       - name: golangci-lint
@@ -69,7 +69,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.25"
+          go-version: "1.27"
           cache-dependency-path: go.sum
 
       - name: Check go.mod/go.sum
