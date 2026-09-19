@@ -75,6 +75,7 @@ func NewClient(ctx context.Context, cfg section.RepositoryPostgres) (*Client, er
 		cfg:      cfg,
 	}, nil
 }
+
 func (c *Client) Migrate(ctx context.Context) (oldVer, newVer int64, err error) {
 	// Шаг 1: Загружаем миграции из embed
 	migrations := migrate.NewMigrations()
