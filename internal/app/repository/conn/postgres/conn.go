@@ -105,7 +105,10 @@ func (c *Client) Migrate(ctx context.Context) (oldVer, newVer int64, err error) 
 	}
 
 	for _, mg := range applied {
-		v, _ := strconv.ParseInt(mg.Name, 10, 64)
+		v, err := strconv.ParseInt(mg.Name, 10, 64)
+		if err != nil {
+			return 0, 0, fmt.Errorf("failed to parse migration version %q: %w", mg.Name, err)
+		}
 		if v > oldVer {
 			oldVer = v
 		}
@@ -121,7 +124,10 @@ func (c *Client) Migrate(ctx context.Context) (oldVer, newVer int64, err error) 
 	newVer = oldVer
 	if newMigrations != nil {
 		for _, mg := range newMigrations.Migrations {
-			v, _ := strconv.ParseInt(mg.Name, 10, 64)
+			v, err := strconv.ParseInt(mg.Name, 10, 64)
+			if err != nil {
+				return oldVer, oldVer, fmt.Errorf("failed to parse migration version %q: %w", mg.Name, err)
+			}
 			if v > newVer {
 				newVer = v
 			}
