@@ -8,7 +8,6 @@ import (
 
 	"github.com/AlexanderTal/catalog-service/internal/app/entity"
 	"github.com/AlexanderTal/catalog-service/internal/app/repository"
-
 	rcpostgres "github.com/AlexanderTal/catalog-service/internal/app/repository/conn/postgres"
 )
 

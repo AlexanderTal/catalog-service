@@ -3,13 +3,11 @@ package pcategory
 import (
 	"context"
 
-	"github.com/uptrace/bun"
-
 	"github.com/gofrs/uuid"
+	"github.com/uptrace/bun"
 
 	"github.com/AlexanderTal/catalog-service/internal/app/entity"
 	"github.com/AlexanderTal/catalog-service/internal/app/repository"
-
 	rcpostgres "github.com/AlexanderTal/catalog-service/internal/app/repository/conn/postgres"
 )
 
