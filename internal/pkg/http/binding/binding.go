@@ -36,5 +36,8 @@ func validate(obj any) error {
 	if Validator == nil {
 		return nil
 	}
-	return Validator.ValidateStruct(obj)
+	if err := Validator.ValidateStruct(obj); err != nil {
+		return &bindingError{msg: err.Error()}
+	}
+	return nil
 }
