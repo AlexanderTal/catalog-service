@@ -1,8 +1,6 @@
 package hproduct
 
 import (
-	"encoding/json"
-	"io"
 	"net/http"
 
 	"github.com/gofrs/uuid"
@@ -11,6 +9,7 @@ import (
 	"github.com/AlexanderTal/catalog-service/internal/app/entity"
 	rhandler "github.com/AlexanderTal/catalog-service/internal/app/handler/http"
 	"github.com/AlexanderTal/catalog-service/internal/app/service"
+	"github.com/AlexanderTal/catalog-service/internal/pkg/http/binding"
 	"github.com/AlexanderTal/catalog-service/internal/pkg/http/httph"
 )
 
@@ -24,12 +23,7 @@ func NewHandler(srv service.Product) rhandler.Product {
 
 func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
 	var req entity.RequestProductCreate
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		httph.HandleError(w, entity.ErrIncorrectParameters)
-		return
-	}
-
-	if err := req.Validate(); err != nil {
+	if err := binding.ScanAndValidateJSON(r, &req); err != nil {
 		httph.HandleError(w, err)
 		return
 	}
@@ -61,12 +55,7 @@ func (h *handler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req entity.RequestProductUpdate
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		httph.HandleError(w, entity.ErrIncorrectParameters)
-		return
-	}
-
-	if err := req.Validate(); err != nil {
+	if err := binding.ScanAndValidateJSON(r, &req); err != nil {
 		httph.HandleError(w, err)
 		return
 	}
@@ -108,8 +97,8 @@ func (h *handler) Delete(w http.ResponseWriter, r *http.Request) {
 
 func (h *handler) List(w http.ResponseWriter, r *http.Request) {
 	var req entity.RequestProductList
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil && err != io.EOF {
-		httph.HandleError(w, entity.ErrIncorrectParameters)
+	if err := binding.ScanAndValidateJSON(r, &req); err != nil {
+		httph.HandleError(w, err)
 		return
 	}
 
