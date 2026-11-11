@@ -4,11 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"net/url"
 	"strconv"
 	"time"
 
+	"github.com/rs/zerolog/log"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
@@ -47,7 +47,7 @@ func NewClient(ctx context.Context, cfg section.RepositoryPostgres) (*Client, er
 
 	dsn := u.String()
 
-	log.Printf("Postgres timeouts: read=%s write=%s", cfg.ReadTimeout, cfg.WriteTimeout)
+	log.Info().Str("read_timeout", cfg.ReadTimeout.String()).Str("write_timeout", cfg.WriteTimeout.String()).Msg("Initializing PostgreSQL connection")
 
 	// Шаг 2: sql.DB
 	sqlDB := sql.OpenDB(pgdriver.NewConnector(

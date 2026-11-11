@@ -33,7 +33,7 @@ func (v *defaultValidator) ValidateStruct(obj any) error {
 
 	value := reflect.ValueOf(obj)
 
-	if value.Kind() == reflect.Ptr {
+	if value.Kind() == reflect.Pointer {
 		if value.IsNil() {
 			return nil
 		}
