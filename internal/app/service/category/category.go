@@ -43,12 +43,10 @@ func (s *srv) Create(ctx context.Context, req entity.RequestCategoryCreate) (ent
 			UpdatedAt: now,
 		}
 
-		if err := s.repoCategory.Create(ctx, category); err != nil {
-			return err
-		}
-
+		// Оставляем только один вызов!
 		return s.repoCategory.Create(ctx, category)
 	})
+
 	if err != nil {
 		return entity.Category{}, err
 	}
