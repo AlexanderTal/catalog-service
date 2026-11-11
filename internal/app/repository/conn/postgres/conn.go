@@ -70,8 +70,8 @@ func NewClient(ctx context.Context, cfg section.RepositoryPostgres) (*Client, er
 
 	// Шаг 5: Client
 	return &Client{
-		_bunDB:   bunDB,
-		rawBunDB: bunDB,
+		_bunDB:   newTxInjector(bunDB), // <--- Оборачиваем!
+		rawBunDB: bunDB,                // <--- Оставляем оригинал
 		cfg:      cfg,
 	}, nil
 }
@@ -135,4 +135,38 @@ func (c *Client) Migrate(ctx context.Context) (oldVer, newVer int64, err error) 
 	}
 
 	return oldVer, newVer, nil
+}
+
+func (c *Client) InsideTx(ctx context.Context, fn func(ctx context.Context) error) error {
+	// ШАГ 1 — Проверка вложенности
+	if tx := getTxFromContext(ctx); tx.Tx != nil {
+		return fn(ctx)
+	}
+
+	// ШАГ 2 — Создание транзакции
+	tx, err := c.rawBunDB.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("failed to begin tx: %w", err)
+	}
+
+	// ШАГ 3 — defer с автоматическим Rollback
+	done := false
+	defer func() {
+		if !done {
+			_ = tx.Rollback()
+		}
+	}()
+
+	// ШАГ 4 — Выполнение и Commit
+	txCtx := setTxToContext(ctx, tx)
+	if err := fn(txCtx); err != nil {
+		return err // defer сделает Rollback
+	}
+
+	done = true
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit tx: %w", err)
+	}
+
+	return nil
 }
