@@ -46,7 +46,6 @@ func (s *srv) Create(ctx context.Context, req entity.RequestCategoryCreate) (ent
 		// Оставляем только один вызов!
 		return s.repoCategory.Create(ctx, category)
 	})
-
 	if err != nil {
 		return entity.Category{}, err
 	}
