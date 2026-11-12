@@ -24,7 +24,10 @@ func NewRepoFromPostgres(client *rcpostgres.Client) repository.Category {
 }
 
 func (r *repoPg) Create(ctx context.Context, category entity.Category) error {
-	_, err := r.NewInsert().Model(&category).Exec(ctx)
+	_, err := r.NewInsert().
+		Model(&category).
+		ExcludeColumn("id").
+		Exec(ctx)
 	return err
 }
 
