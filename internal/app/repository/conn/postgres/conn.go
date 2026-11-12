@@ -34,7 +34,6 @@ func (c *Client) GetRawBunDB() *bun.DB {
 }
 
 func NewClient(ctx context.Context, cfg section.RepositoryPostgres) (*Client, error) {
-
 	var u url.URL
 	u.Scheme = "postgres"
 	u.Host = cfg.Address
@@ -73,7 +72,6 @@ func NewClient(ctx context.Context, cfg section.RepositoryPostgres) (*Client, er
 }
 
 func (c *Client) Migrate(ctx context.Context) (oldVer, newVer int64, err error) {
-
 	migrations := migrate.NewMigrations()
 
 	if err = migrations.Discover(migration.Postgres); err != nil {
@@ -129,7 +127,6 @@ func (c *Client) Migrate(ctx context.Context) (oldVer, newVer int64, err error) 
 }
 
 func (c *Client) InsideTx(ctx context.Context, fn func(ctx context.Context) error) error {
-
 	if tx := getTxFromContext(ctx); tx.Tx != nil {
 		return fn(ctx)
 	}
