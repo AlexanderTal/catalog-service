@@ -34,7 +34,7 @@ func (c *Client) GetRawBunDB() *bun.DB {
 }
 
 func NewClient(ctx context.Context, cfg section.RepositoryPostgres) (*Client, error) {
-	// Шаг 1: DSN
+
 	var u url.URL
 	u.Scheme = "postgres"
 	u.Host = cfg.Address
@@ -49,7 +49,6 @@ func NewClient(ctx context.Context, cfg section.RepositoryPostgres) (*Client, er
 
 	log.Info().Str("read_timeout", cfg.ReadTimeout.String()).Str("write_timeout", cfg.WriteTimeout.String()).Msg("Initializing PostgreSQL connection")
 
-	// Шаг 2: sql.DB
 	sqlDB := sql.OpenDB(pgdriver.NewConnector(
 		pgdriver.WithDSN(dsn),
 		pgdriver.WithReadTimeout(cfg.ReadTimeout),
@@ -57,10 +56,8 @@ func NewClient(ctx context.Context, cfg section.RepositoryPostgres) (*Client, er
 	))
 	sqlDB.SetMaxOpenConns(10)
 
-	// Шаг 3: bun.DB
 	bunDB := bun.NewDB(sqlDB, pgdialect.New(), bun.WithDiscardUnknownColumns())
 
-	// Шаг 4: Ping с таймаутом 2 секунды
 	pingCtx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()
 
@@ -68,23 +65,21 @@ func NewClient(ctx context.Context, cfg section.RepositoryPostgres) (*Client, er
 		return nil, fmt.Errorf("failed to ping postgres: %w", err)
 	}
 
-	// Шаг 5: Client
 	return &Client{
-		_bunDB:   newTxInjector(bunDB), // <--- Оборачиваем!
-		rawBunDB: bunDB,                // <--- Оставляем оригинал
+		_bunDB:   newTxInjector(bunDB),
+		rawBunDB: bunDB,
 		cfg:      cfg,
 	}, nil
 }
 
 func (c *Client) Migrate(ctx context.Context) (oldVer, newVer int64, err error) {
-	// Шаг 1: Загружаем миграции из embed
+
 	migrations := migrate.NewMigrations()
 
 	if err = migrations.Discover(migration.Postgres); err != nil {
 		return 0, 0, fmt.Errorf("failed to discover migrations: %w", err)
 	}
 
-	// Шаг 2: Создаём мигратор с опциями
 	opts := []migrate.MigratorOption{
 		migrate.WithTableName(c.cfg.MigrationTable),
 		migrate.WithLocksTableName(c.cfg.MigrationTable + "_lock"),
@@ -93,12 +88,10 @@ func (c *Client) Migrate(ctx context.Context) (oldVer, newVer int64, err error) 
 
 	m := migrate.NewMigrator(c.rawBunDB, migrations, opts...)
 
-	// Шаг 3: Инициализируем таблицу миграций
 	if err = m.Init(ctx); err != nil {
 		return 0, 0, fmt.Errorf("failed to init migration table: %w", err)
 	}
 
-	// Шаг 4: Получаем текущую версию (ДО применения)
 	applied, err := m.AppliedMigrations(ctx)
 	if err != nil {
 		return 0, 0, fmt.Errorf("failed to get applied migrations: %w", err)
@@ -114,13 +107,11 @@ func (c *Client) Migrate(ctx context.Context) (oldVer, newVer int64, err error) 
 		}
 	}
 
-	// Шаг 5: Применяем новые миграции
 	newMigrations, err := m.Migrate(ctx)
 	if err != nil {
 		return oldVer, oldVer, fmt.Errorf("failed to migrate: %w", err)
 	}
 
-	// Шаг 6: Вычисляем новую версию
 	newVer = oldVer
 	if newMigrations != nil {
 		for _, mg := range newMigrations.Migrations {
@@ -138,18 +129,16 @@ func (c *Client) Migrate(ctx context.Context) (oldVer, newVer int64, err error) 
 }
 
 func (c *Client) InsideTx(ctx context.Context, fn func(ctx context.Context) error) error {
-	// ШАГ 1 — Проверка вложенности
+
 	if tx := getTxFromContext(ctx); tx.Tx != nil {
 		return fn(ctx)
 	}
 
-	// ШАГ 2 — Создание транзакции
 	tx, err := c.rawBunDB.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("failed to begin tx: %w", err)
 	}
 
-	// ШАГ 3 — defer с автоматическим Rollback
 	done := false
 	defer func() {
 		if !done {
@@ -157,7 +146,6 @@ func (c *Client) InsideTx(ctx context.Context, fn func(ctx context.Context) erro
 		}
 	}()
 
-	// ШАГ 4 — Выполнение и Commit
 	txCtx := setTxToContext(ctx, tx)
 	if err := fn(txCtx); err != nil {
 		return err // defer сделает Rollback

@@ -44,7 +44,6 @@ func (m *middleware) Callback(next http.Handler) http.Handler {
 		mb.WriteByte(' ')
 		mb.WriteString(r.RequestURI)
 
-		// Выбор уровня логирования
 		var ev *zerolog.Event
 		if err == nil {
 			// Успешный запрос

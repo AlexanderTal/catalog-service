@@ -25,8 +25,6 @@ func (x *txInjector) getIDB(ctx context.Context) bun.IDB {
 	return x.fallback
 }
 
-// --- Методы IConn ---
-
 func (x *txInjector) ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error) {
 	return x.getIDB(ctx).ExecContext(ctx, query, args...)
 }
@@ -38,8 +36,6 @@ func (x *txInjector) QueryContext(ctx context.Context, query string, args ...any
 func (x *txInjector) QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row {
 	return x.getIDB(ctx).QueryRowContext(ctx, query, args...)
 }
-
-// --- Query Builders ---
 
 func (x *txInjector) NewSelect() *bun.SelectQuery {
 	return x.fallback.NewSelect().Conn(x)
@@ -96,8 +92,6 @@ func (x *txInjector) NewAddColumn() *bun.AddColumnQuery {
 func (x *txInjector) NewDropColumn() *bun.DropColumnQuery {
 	return x.fallback.NewDropColumn().Conn(x)
 }
-
-// --- Остальные методы ---
 
 func (x *txInjector) Dialect() schema.Dialect {
 	return x.fallback.Dialect()
