@@ -86,3 +86,9 @@ ci: ## Запустить все CI проверки
 	go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v${GO_LINT_VERSION} run --timeout=10m
 	@echo ""
 	@echo "CI passed!"
+# =============================================================================
+# Кодогенерация
+# =============================================================================
+.PHONY: generate-mocks
+generate-mocks: ## Сгенерировать моки (mockery)
+	go run github.com/vektra/mockery/v2@latest

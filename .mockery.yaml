@@ -1,0 +1,10 @@
+with-expecter: true
+dir: "internal/app/repository/mocks"
+outpkg: mocks
+mockname: "Mock{{.InterfaceName}}"
+filename: "{{.InterfaceNameSnake}}_mock.go"
+packages:
+  github.com/AlexanderTal/catalog-service/internal/app/repository:
+    interfaces:
+      Product:
+      Category:
