@@ -419,12 +419,12 @@ func (s *listProductSuite) TestList() {
 				req: entity.RequestProductList{},
 			},
 			want: want{
-				products: []entity.Product{{Name: "Product 1"}},
+				products: []entity.Product{{Name: "Product 1", Price: 100}},
 			},
 			prepare: func(args args) {
 				s.productRepo.EXPECT().
 					List(s.ctx, (*string)(nil), args.req.CategoryGUID, args.req.MinPrice, args.req.MaxPrice).
-					Return([]entity.Product{{Name: "Product 1"}}, nil).
+					Return([]entity.Product{{Name: "Product 1", Price: 100}}, nil).
 					Once()
 			},
 		},
@@ -453,6 +453,11 @@ func (s *listProductSuite) TestList() {
 
 			s.NoError(err)
 			s.Equal(len(tc.want.products), len(result))
+
+			for i := range tc.want.products {
+				s.Equal(tc.want.products[i].Name, result[i].Name)
+				s.Equal(tc.want.products[i].Price, result[i].Price)
+			}
 		})
 	}
 }
