@@ -16,6 +16,7 @@ func main() {
 		Usage:   "Catalog management service",
 		Commands: []*cli.Command{
 			cmd.Migrate(),
+			cmd.WebServer(),
 		},
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
